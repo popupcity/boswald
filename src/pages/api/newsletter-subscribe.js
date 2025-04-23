@@ -35,7 +35,7 @@ export async function POST({ request }) {
       );
     }
 
-    const data = new URLSearchParams();
+    const data = new FormData();
     data.append('api_key', apiKey);
     data.append('list', listId);
     data.append('email', email);
