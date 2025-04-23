@@ -86,8 +86,6 @@ const { id } = Astro.props;
                 modalOkButton.addEventListener('click', () => {
                     ModalFunctions.closeModal(modalId);
                 });
-            } else {
-                console.warn(`OK button with id ${okButtonId} not found for modal ${modalId}`);
             }
             
             // Close modal when clicking outside

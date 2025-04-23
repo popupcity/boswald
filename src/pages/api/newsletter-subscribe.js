@@ -74,10 +74,10 @@ export async function POST({ request }) {
       responseText.toLowerCase().includes('true')
     ) {
       return new Response(
-        JSON.stringify({ success: true, message: 'Succesvol ingeschreven' }),
+        JSON.stringify({ success: true, message: 'Succesvol ingeschreven.' }),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
-    } else if (responseText.includes('Already subscribed')) {
+    } else if (responseText.includes('Already subscribed.')) {
       return new Response(
         JSON.stringify({
           success: false,
@@ -86,7 +86,7 @@ export async function POST({ request }) {
         }),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
-    } else if (responseText.includes('Invalid email')) {
+    } else if (responseText.includes('Invalid email address.')) {
       return new Response(
         JSON.stringify({
           success: false,

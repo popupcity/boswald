@@ -1,7 +1,7 @@
 ---
 import Button from '../components/Button.astro';
 import Modal from '../components/Modal.astro';
-import { getTranslations} from '../translations';
+import { getTranslations} from '../translations/index.ts';
 
 // Haal huidige taal op van Astro
 const currentLocale = Astro.currentLocale || 'en';
@@ -9,19 +9,19 @@ const t = getTranslations(currentLocale);
 ---
 
 <form id="subscribe-form" class="w-full max-w-md space-y-4" novalidate>
-    <div class="flex space-x-4">
+    <div class="flex space-x-2">
         <input
             type="email"
             name="email"
             id="email"
             required
             placeholder={t.subscribeForm.emailPlaceholder}
-            class="italic flex-grow px-4 py-2 border border-gray rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green focus:border-green transition-all text-black bg-gray-100 font-text text-lg md:text-xl"
+            class="flex-grow px-4 py-2 border border-gray rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green focus:border-green transition-all text-black bg-cream font-text text-xl"
         />
         <select 
             id="language" 
             name="language"
-            class="p-2 border border-gray rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green focus:border-green transition-all text-black text-lg md:text-xl bg-gray-100"
+            class="p-2 border border-gray rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green focus:border-green transition-all text-black text-xl bg-cream"
             required
         >
             <option value="en" selected={currentLocale === 'en'}>🇬🇧</option>
@@ -74,6 +74,8 @@ const t = getTranslations(currentLocale);
                         body: JSON.stringify({ email, language: languageSelect.value }),
                     });
 
+                    console.log(response);
+
                     if (!response.ok) {
                         throw new Error('Server responded with status ' + response.status);
                     }
@@ -83,9 +85,9 @@ const t = getTranslations(currentLocale);
                     if (result.success) {
                         window.ModalFunctions.showModal('feedback-modal', t.success, true);
                         form.reset();
-                    } else if (result.error === 'already_subscribed') {
+                    } else if (result.error === 'Already subscribed.') {
                         window.ModalFunctions.showModal('feedback-modal', t.alreadySubscribed, false);
-                    } else if (result.error === 'invalid_email') {
+                    } else if (result.error === 'Invalid email address.') {
                         window.ModalFunctions.showModal('feedback-modal', t.invalidEmail, false);
                     } else {
                         window.ModalFunctions.showModal('feedback-modal', t.errorMessage, false);
