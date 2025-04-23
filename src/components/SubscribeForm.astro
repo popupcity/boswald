@@ -66,7 +66,7 @@ const t = getTranslations(currentLocale);
 
                 // Use the local proxy API endpoint instead of directly to Sendy
                 try {
-                    const response = await fetch('/api/newsletter-subscribe', {
+                    const response = await fetch(`${window.location.origin}/api/newsletter-subscribe`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

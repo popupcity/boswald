@@ -1,13 +1,4 @@
 export async function POST({ request }) {
-  console.log('Environment variables check:', {
-    SENDY_API_KEY: import.meta.env.SENDY_API_KEY ? 'exists' : 'missing',
-    SENDY_SUBSCRIBE_URL: import.meta.env.SENDY_SUBSCRIBE_URL
-      ? 'exists'
-      : 'missing',
-    SENDY_LIST_ID_NL: import.meta.env.SENDY_LIST_ID_NL ? 'exists' : 'missing',
-    SENDY_LIST_ID_EN: import.meta.env.SENDY_LIST_ID_EN ? 'exists' : 'missing',
-  });
-
   try {
     // Extract the JSON body from the request
     const body = await request.json();
@@ -72,7 +63,7 @@ export async function POST({ request }) {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: data,
+      body: data.toString(),
     });
 
     const responseText = await response.text();
