@@ -1,4 +1,13 @@
 export async function POST({ request }) {
+  console.log('Environment variables check:', {
+    SENDY_API_KEY: import.meta.env.SENDY_API_KEY ? 'exists' : 'missing',
+    SENDY_SUBSCRIBE_URL: import.meta.env.SENDY_SUBSCRIBE_URL
+      ? 'exists'
+      : 'missing',
+    SENDY_LIST_ID_NL: import.meta.env.SENDY_LIST_ID_NL ? 'exists' : 'missing',
+    SENDY_LIST_ID_EN: import.meta.env.SENDY_LIST_ID_EN ? 'exists' : 'missing',
+  });
+
   try {
     // Extract the JSON body from the request
     const body = await request.json();
@@ -15,8 +24,25 @@ export async function POST({ request }) {
       );
     }
 
-    const apiKey = import.meta.env.SENDY_API_KEY;
-    const sendyUrl = import.meta.env.SENDY_SUBSCRIBE_URL;
+    // In Cloudflare Workers moeten we env variabelen soms anders benaderen
+    const apiKey = import.meta.env.SENDY_API_KEY || process.env.SENDY_API_KEY;
+    const sendyUrl =
+      import.meta.env.SENDY_SUBSCRIBE_URL ||
+      process.env.SENDY_SUBSCRIBE_URL ||
+      'https://newsletter.popupcity.net/subscribe';
+
+    // Voeg een controle toe om ervoor te zorgen dat de URL niet undefined is
+    if (!sendyUrl) {
+      console.error('Sendy URL is undefined!');
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'configuration_error',
+          message: 'Server configuration error',
+        }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Kies juiste lijst-ID
     let listId;
