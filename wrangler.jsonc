@@ -13,7 +13,7 @@
     "enabled": true
   },
   "vars": {
-    "PUBLIC_FRONTEND_URL": "https://boswald.nl",
+    "PUBLIC_FRONTEND_URL": "https://boswald.mail-2d2.workers.dev",
     "SENDY_API_KEY": "96U7CnteXpG9Bvi6Cn4g",
     "SENDY_LIST_ID_NL": "31YdPQSL7hZZBZBaR763EULA",
     "SENDY_LIST_ID_EN": "MtTwkoWw0HCcaCvSFoIvUg",
