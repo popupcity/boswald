@@ -1,0 +1,105 @@
+---
+import Button from '../components/Button.astro';
+import Modal from '../components/Modal.astro';
+import { getTranslations} from '../translations';
+
+// Haal huidige taal op van Astro
+const currentLocale = Astro.currentLocale || 'en';
+const t = getTranslations(currentLocale);
+---
+
+<form id="subscribe-form" class="w-full max-w-md space-y-4" novalidate>
+    <div class="flex space-x-4">
+        <input
+            type="email"
+            name="email"
+            id="email"
+            required
+            placeholder={t.subscribeForm.emailPlaceholder}
+            class="italic flex-grow px-4 py-2 border border-gray rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green focus:border-green transition-all text-black bg-gray-100 font-text text-lg md:text-xl"
+        />
+        <select 
+            id="language" 
+            name="language"
+            class="p-2 border border-gray rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green focus:border-green transition-all text-black text-lg md:text-xl bg-gray-100"
+            required
+        >
+            <option value="en" selected={currentLocale === 'en'}>🇬🇧</option>
+            <option value="nl" selected={currentLocale === 'nl'}>🇳🇱</option>
+        </select>
+    </div>
+    <Button type="submit" id="submit-button" content={t.subscribeForm.submitButton} />
+</form>
+
+<Modal id="feedback-modal" />
+
+<script define:vars={{ 
+    frontendUrl: import.meta.env.PUBLIC_FRONTEND_URL || 'http://localhost:4321',
+    t: t.subscribeForm
+}}>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('subscribe-form');
+        const submitButton = document.getElementById('submit-button');
+        const emailInput = document.getElementById('email');
+        const languageSelect = document.getElementById('language');
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        if (form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                // Show loading state
+                submitButton.disabled = true;
+                submitButton.innerHTML = t.loadingText;
+
+                const email = emailInput.value.trim();
+                if (!email || !validateEmail(email)) {
+                    window.ModalFunctions.showModal('feedback-modal', t.validationError, false);
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = t.submitButton;
+                    return;
+                }
+
+                // Use the local proxy API endpoint instead of directly to Sendy
+                try {
+                    const response = await fetch('/api/newsletter-subscribe', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email, language: languageSelect.value }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Server responded with status ' + response.status);
+                    }
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        window.ModalFunctions.showModal('feedback-modal', t.success, true);
+                        form.reset();
+                    } else if (result.error === 'already_subscribed') {
+                        window.ModalFunctions.showModal('feedback-modal', t.alreadySubscribed, false);
+                    } else if (result.error === 'invalid_email') {
+                        window.ModalFunctions.showModal('feedback-modal', t.invalidEmail, false);
+                    } else {
+                        window.ModalFunctions.showModal('feedback-modal', t.errorMessage, false);
+                        console.error('Error:', result.message);
+                    }
+                } catch (error) {
+                    console.error('API call error:', error);
+                    window.ModalFunctions.showModal('feedback-modal', t.connectionError, false);
+                } finally {
+                    // Restore button
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = t.submitButton;
+                }
+            });
+        }
+    });
+</script>

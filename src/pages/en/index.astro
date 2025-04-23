@@ -1,0 +1,25 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import SubscribeForm from '../../components/SubscribeForm.astro';
+import InstagramButton from '../../components/InstagramButton.astro';
+
+// Haal de preferred locale uit de Accept-Language header
+const preferredLocale = Astro.preferredLocale;
+const currentLocale = Astro.currentLocale;
+
+// Redirect naar de gedetecteerde taal als die verschilt van de huidige
+if (preferredLocale && currentLocale !== preferredLocale) {
+  return Astro.redirect(`/${preferredLocale}/`);
+}
+---
+
+<Layout language="en" title="Welcome to Boswald" description="At the edge of Hoge Kempen National Park, nestled in the Belgian woods and within cycling distance of Maastricht, stands a stylish forest cabin where you can soon stay.">
+  <div class="flex flex-col items-center justify-center flex-grow max-w-3xl">
+    <section class="text-center mb-12">
+      <h1 class="mb-8 font-title text-xl md:text-8xl">Boswald</h1>
+      <p class="font-text text-lg md:text-xl leading-snug">At the edge of Hoge Kempen National Park, nestled in the Belgian woods and within cycling distance of Maastricht, <a href="https://popupcity.net/" target="_blank" class="italic">Pop-Up City</a> is building a stylish forest cabin where you can soon stay. Want to be the first to know when we open? Leave your email address and receive a 15% discount code at launch.</p>
+    </section>
+    <SubscribeForm />
+  </div>
+  <InstagramButton />
+</Layout>

@@ -1,0 +1,114 @@
+---
+import Button from './Button.astro';
+
+const { id } = Astro.props;
+---
+
+<div id={id} class="fixed inset-0 bg-black/50 items-center justify-center z-50 hidden opacity-0 transition-opacity duration-300 ease-in-out">
+    <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-transform duration-300 scale-95">
+        <p id="modal-message" class="text-center py-4 text-black text-lg md:text-xl font-text"></p>
+        <div class="flex justify-center mt-4">
+            <Button content="OK" id={`${id}-ok-button`} />
+        </div>
+    </div>
+</div>
+
+<script>
+    // Declare type for window extension
+    declare global {
+        interface Window {
+            ModalFunctions: typeof ModalFunctions;
+        }
+    }
+
+    // Create a namespace for modal functions
+    const ModalFunctions = {
+        showModal: (modalId: string, message: string, isSuccess: boolean): void => {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+            
+            const modalMessage = modal.querySelector('#modal-message');
+            if (!modalMessage) return;
+            
+            modalMessage.textContent = message;
+            
+            // First make the modal visible but still transparent
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Force a reflow to ensure the transition works
+            void modal.offsetWidth;
+            
+            // Then trigger the fade-in transition
+            modal.classList.add('opacity-100');
+            
+            // Animate the inner modal content scaling up
+            const modalContent = modal.querySelector('div');
+            if (modalContent) {
+                setTimeout(() => {
+                    modalContent.classList.remove('scale-95');
+                    modalContent.classList.add('scale-100');
+                }, 10);
+            }
+        },
+        
+        closeModal: (modalId: string): void => {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+            
+            // Start fade out animation
+            modal.classList.remove('opacity-100');
+            
+            // Scale down the modal content
+            const modalContent = modal.querySelector('div');
+            if (modalContent) {
+                modalContent.classList.remove('scale-100');
+                modalContent.classList.add('scale-95');
+            }
+            
+            // Wait for animation to complete before hiding
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300); // Match this to the CSS duration
+        },
+        
+        setupModal: (modalId: string): void => {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+            
+            // Gebruik de juiste id voor de OK-knop gebaseerd op de modal id
+            const okButtonId = `${modalId}-ok-button`;
+            const modalOkButton = document.getElementById(okButtonId);
+            
+            // Close modal when OK button is clicked
+            if (modalOkButton) {
+                modalOkButton.addEventListener('click', () => {
+                    ModalFunctions.closeModal(modalId);
+                });
+            } else {
+                console.warn(`OK button with id ${okButtonId} not found for modal ${modalId}`);
+            }
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', (e: MouseEvent) => {
+                if (e.target === modal) {
+                    ModalFunctions.closeModal(modalId);
+                }
+            });
+        }
+    };
+    
+    // Make modal functions globally available
+    window.ModalFunctions = ModalFunctions;
+    
+    // Setup all modals on the page
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('[id]').forEach((element) => {
+            const id = element.id;
+            if (id && id.includes('modal') && !id.includes('-ok-button')) {
+                ModalFunctions.setupModal(id);
+            }
+        });
+    });
+</script>

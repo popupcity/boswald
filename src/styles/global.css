@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Besley:ital,wght@0,400..900;1,400..900&display=swap');
+
+@import 'tailwindcss';
+
+@font-face {
+  font-family: 'Comico Regular';
+  src: url('../../public/fonts/Comico-Regular.woff2') format('woff2'),
+    url('../../public/fonts/Comico-Regular.woff') format('woff'),
+    url('../../public/fonts/Comico-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+  font-style: normal;
+}
+
+@theme {
+  --color-black: #2b2b2b;
+  --color-green: #7fbf8c;
+  --color-brown: #7f5f3b;
+  --color-gray: #e6e6e6;
+  --color-rose: #c97b7b;
+  --color-cream: #f5f3ec;
+
+  --font-title: 'Comico Regular', sans-serif;
+  --font-text: 'Besley', serif;
+}
+
+.btn {
+  @apply bg-green text-white px-4 py-2 rounded-md shadow-md hover:bg-black transition-all focus:outline-none focus:ring-2 focus:ring-green cursor-pointer w-full font-text text-lg md:text-xl italic;
+}
