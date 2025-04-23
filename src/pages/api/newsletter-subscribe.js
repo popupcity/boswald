@@ -35,7 +35,7 @@ export async function POST({ request }) {
       );
     }
 
-    const data = new FormData();
+    const data = new URLSearchParams();
     data.append('api_key', apiKey);
     data.append('list', listId);
     data.append('email', email);
@@ -43,6 +43,9 @@ export async function POST({ request }) {
 
     const response = await fetch(sendyUrl, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
       body: data,
     });
 
