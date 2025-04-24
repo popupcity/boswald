@@ -15,28 +15,11 @@ export async function POST({ request }) {
       );
     }
 
-    // For Cloudflare + Astro, access env vars using this special syntax
+    // Hard-coded values since env access is problematic
     const apiKey = '96U7CnteXpG9Bvi6Cn4g';
     const sendyUrl = 'https://newsletter.popupcity.net/subscribe';
 
-    // Log for debugging
-    console.log(`Using Sendy URL: ${sendyUrl}`);
-    console.log(`Using API Key: ${apiKey?.substring(0, 5)}...`);
-
-    // Voeg een controle toe om ervoor te zorgen dat de URL niet undefined is
-    if (!sendyUrl) {
-      console.error('Sendy URL is undefined!');
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'configuration_error',
-          message: 'Server configuration error',
-        }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Kies juiste lijst-ID
+    // Choose appropriate list ID
     let listId;
     if (language === 'nl') {
       listId = '31YdPQSL7hZZBZBaR763EULA';
@@ -53,8 +36,9 @@ export async function POST({ request }) {
       );
     }
 
-    console.log(`Using List ID: ${listId}`);
-    console.log(`Email to subscribe: ${email}`);
+    console.log(
+      `Sending request to Sendy for email: ${email}, language: ${language}, listId: ${listId}`
+    );
 
     const data = new URLSearchParams();
     data.append('api_key', apiKey);
@@ -62,20 +46,37 @@ export async function POST({ request }) {
     data.append('email', email);
     data.append('boolean', 'true');
 
-    console.log('Sending request to Sendy with data:', data.toString());
-
+    // Add additional headers that might help with the 403 issue
     const response = await fetch(sendyUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'Mozilla/5.0 (compatible; PopupCity/1.0)',
+        Origin: 'https://popupcity.net',
+        Referer: 'https://popupcity.net/',
       },
       body: data.toString(),
     });
 
-    const responseText = await response.text();
-    console.log('Sendy API response:', responseText);
+    console.log(`Sendy API response status: ${response.status}`);
 
-    // More strict response parsing
+    const responseText = await response.text();
+    console.log(`Sendy API raw response: ${responseText}`);
+
+    // First check for HTTP status
+    if (response.status !== 200) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'http_error',
+          message: `HTTP error: ${response.status}`,
+          details: responseText,
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Then check for Sendy-specific responses
     if (responseText === '1' || responseText.toLowerCase() === 'true') {
       return new Response(
         JSON.stringify({ success: true, message: 'Succesvol ingeschreven.' }),
@@ -100,7 +101,6 @@ export async function POST({ request }) {
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
     } else {
-      console.error('Unexpected Sendy response:', responseText);
       return new Response(
         JSON.stringify({
           success: false,
