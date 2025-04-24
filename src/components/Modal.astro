@@ -6,7 +6,7 @@ const { id } = Astro.props;
 
 <div id={id} class="fixed inset-0 bg-black/50 items-center justify-center z-50 hidden opacity-0 transition-opacity duration-300 ease-in-out">
     <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-transform duration-300 scale-95">
-        <p id="modal-message" class="text-center py-4 text-black text-lg md:text-xl font-text"></p>
+        <p id="modal-message" class="text-center py-4 text-black text-base md:text-xl font-text"></p>
         <div class="flex justify-center mt-4">
             <Button content="OK" id={`${id}-ok-button`} />
         </div>

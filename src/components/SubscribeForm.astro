@@ -16,12 +16,12 @@ const t = getTranslations(currentLocale);
             id="email"
             required
             placeholder={t.subscribeForm.emailPlaceholder}
-            class="flex-grow px-4 py-2 border border-gray rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green focus:border-green transition-all text-black bg-cream font-text text-xl"
+            class="flex-grow px-4 py-2 border border-gray rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green focus:border-green transition-all text-black bg-cream font-text text-base md:text-xl"
         />
         <select 
             id="language" 
             name="language"
-            class="p-2 border border-gray rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green focus:border-green transition-all text-black text-xl bg-cream"
+            class="p-2 border border-gray rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green focus:border-green transition-all text-black text-base md:text-xl bg-cream"
             required
         >
             <option value="en" selected={currentLocale === 'en'}>🇬🇧</option>
