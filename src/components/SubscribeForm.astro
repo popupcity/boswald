@@ -33,10 +33,7 @@ const t = getTranslations(currentLocale);
 
 <Modal id="feedback-modal" />
 
-<script define:vars={{ 
-    frontendUrl: import.meta.env.PUBLIC_FRONTEND_URL || 'http://localhost:4321',
-    t: t.subscribeForm
-}}>
+<script define:vars={{t: t.subscribeForm}}>
     document.addEventListener('DOMContentLoaded', () => {
         const form = document.getElementById('subscribe-form');
         const submitButton = document.getElementById('submit-button');
@@ -64,39 +61,36 @@ const t = getTranslations(currentLocale);
                     return;
                 }
 
+                // Use the local proxy API endpoint instead of directly to Sendy
                 try {
-                    const language = languageSelect.value;
-                    
-                    // Gebruik de nieuwe API endpoint in plaats van direct Sendy aan te roepen
-                    const response = await fetch('/api/subscribe', {
+                    console.log('Attempting to call API with:', { email, language: languageSelect.value });
+                    const response = await fetch(`${window.origin}/api/newsletter-subscribe`, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ email, language })
+                        body: JSON.stringify({ email, language: languageSelect.value }),
                     });
                     
-                    const result = await response.json();
+                    console.log('API response status:', response.status);
                     
+                    // Gebruik ALLEEN response.json(), niet eerst .text() en dan .json()
+                    const result = await response.json();
+                    console.log('API response data:', result);
+
                     if (result.success) {
                         window.ModalFunctions.showModal('feedback-modal', t.success, true);
                         form.reset();
+                    } else if (result.error === 'already_subscribed') {
+                        window.ModalFunctions.showModal('feedback-modal', t.alreadySubscribed, false);
+                    } else if (result.error === 'invalid_email') {
+                        window.ModalFunctions.showModal('feedback-modal', t.invalidEmail, false);
                     } else {
-                        // Afhandeling van specifieke foutcodes
-                        switch(result.error) {
-                            case 'already_subscribed':
-                                window.ModalFunctions.showModal('feedback-modal', t.alreadySubscribed, false);
-                                break;
-                            case 'invalid_email':
-                                window.ModalFunctions.showModal('feedback-modal', t.validationError, false);
-                                break;
-                            default:
-                                window.ModalFunctions.showModal('feedback-modal', t.errorMessage, false);
-                                console.error('API error:', result.message);
-                        }
+                        window.ModalFunctions.showModal('feedback-modal', t.errorMessage, false);
+                        console.error('Error:', result.message);
                     }
                 } catch (error) {
-                    console.error('API call error:', error);
+                    console.error('API call error details:', error);
                     window.ModalFunctions.showModal('feedback-modal', t.connectionError, false);
                 } finally {
                     // Restore button
