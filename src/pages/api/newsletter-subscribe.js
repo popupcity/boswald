@@ -1,7 +1,8 @@
 export async function POST({ request }) {
   try {
-    // Extract the JSON body and validate required fields
-    const { email, language } = await request.json();
+    // Extract the JSON body from the request
+    const body = await request.json();
+    const { email, language } = body;
 
     if (!email || !language) {
       return new Response(
@@ -14,13 +15,14 @@ export async function POST({ request }) {
       );
     }
 
-    // Get environment variables
+    // In Cloudflare Workers moeten we env variabelen soms anders benaderen
     const apiKey = import.meta.env.SENDY_API_KEY ?? process.env.SENDY_API_KEY;
     const sendyUrl =
       import.meta.env.SENDY_SUBSCRIBE_URL ?? process.env.SENDY_SUBSCRIBE_URL;
 
-    if (!sendyUrl || !apiKey) {
-      console.error('Sendy configuratie ontbreekt');
+    // Voeg een controle toe om ervoor te zorgen dat de URL niet undefined is
+    if (!sendyUrl) {
+      console.error('Sendy URL is undefined!');
       return new Response(
         JSON.stringify({
           success: false,
@@ -32,21 +34,22 @@ export async function POST({ request }) {
     }
 
     // Kies juiste lijst-ID
-    const listIdKey = `SENDY_LIST_ID_${language.toUpperCase()}`;
-    const listId = import.meta.env[listIdKey] ?? process.env[listIdKey];
-
-    if (!listId) {
+    let listId;
+    if (language === 'nl') {
+      listId = import.meta.env.SENDY_LIST_ID_NL ?? process.env.SENDY_LIST_ID_NL;
+    } else if (language === 'en') {
+      listId = import.meta.env.SENDY_LIST_ID_EN ?? process.env.SENDY_LIST_ID_EN;
+    } else {
       return new Response(
         JSON.stringify({
           success: false,
           error: 'invalid_language',
-          message: 'Taal niet ondersteund.',
+          message: 'Taal niet herkend.',
         }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    // Bereid data voor en verstuur naar Sendy
     const data = new URLSearchParams();
     data.append('api_key', apiKey);
     data.append('list', listId);
@@ -55,13 +58,15 @@ export async function POST({ request }) {
 
     const response = await fetch(sendyUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
       body: data.toString(),
     });
 
     const responseText = await response.text();
+    console.log('Sendy API response:', responseText);
 
-    // Verwerk de response
     if (
       responseText.includes('1') ||
       responseText.toLowerCase().includes('true')
@@ -70,45 +75,41 @@ export async function POST({ request }) {
         JSON.stringify({ success: true, message: 'Succesvol ingeschreven.' }),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
+    } else if (responseText.includes('Already subscribed')) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'already_subscribed',
+          message: 'Al ingeschreven',
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      );
+    } else if (responseText.includes('Invalid email')) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'invalid_email',
+          message: 'Ongeldige email',
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      );
+    } else {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'api_error',
+          message: responseText,
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      );
     }
-
-    // Map bekende foutmeldingen
-    const errorMap = {
-      'Already subscribed': {
-        error: 'already_subscribed',
-        message: 'Al ingeschreven',
-      },
-      'Invalid email': { error: 'invalid_email', message: 'Ongeldige email' },
-    };
-
-    for (const [errText, errInfo] of Object.entries(errorMap)) {
-      if (responseText.includes(errText)) {
-        return new Response(
-          JSON.stringify({
-            success: false,
-            ...errInfo,
-          }),
-          { status: 200, headers: { 'Content-Type': 'application/json' } }
-        );
-      }
-    }
-
-    // Onbekende fout
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: 'api_error',
-        message: responseText,
-      }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
   } catch (error) {
     console.error('Server error:', error);
     return new Response(
       JSON.stringify({
         success: false,
         error: 'server_error',
-        message: 'Er is een serverfout opgetreden.',
+        message: error.message,
       }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
