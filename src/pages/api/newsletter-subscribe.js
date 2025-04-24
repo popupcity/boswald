@@ -1,6 +1,5 @@
 export async function POST({ request }) {
   try {
-    // Extract the JSON body from the request
     const body = await request.json();
     const { email, language } = body;
 
@@ -21,7 +20,11 @@ export async function POST({ request }) {
 
     // Hard-coded values
     const apiKey = '96U7CnteXpG9Bvi6Cn4g';
-    const sendyUrl = 'https://newsletter.popupcity.net/subscribe';
+    const originalSendyUrl = 'https://newsletter.popupcity.net/subscribe';
+    // Use a CORS proxy
+    const sendyUrl = `https://corsproxy.io/?${encodeURIComponent(
+      originalSendyUrl
+    )}`;
 
     // Choose appropriate list ID
     let listId;
@@ -40,61 +43,28 @@ export async function POST({ request }) {
       );
     }
 
-    // Let's try multiple approaches and see which one works
+    const data = new URLSearchParams();
+    data.append('api_key', apiKey);
+    data.append('list', listId);
+    data.append('email', email);
+    data.append('boolean', 'true');
 
-    // Approach 1: Using URLSearchParams (original method)
-    const data1 = new URLSearchParams();
-    data1.append('api_key', apiKey);
-    data1.append('list', listId);
-    data1.append('email', email);
-    data1.append('boolean', 'true');
+    console.log(`Sending request via CORS proxy to Sendy for: ${email}`);
 
-    console.log('Approach 1 - URLSearchParams:', data1.toString());
-
-    // Approach 2: Using manual string formatting
-    const data2 = `api_key=${encodeURIComponent(
-      apiKey
-    )}&list=${encodeURIComponent(listId)}&email=${encodeURIComponent(
-      email
-    )}&boolean=true`;
-
-    console.log('Approach 2 - Manual string:', data2);
-
-    // Try both approaches
-    console.log('Trying approach 1...');
-    let response = await fetch(sendyUrl, {
+    const response = await fetch(sendyUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: data1.toString(),
+      body: data.toString(),
     });
 
-    let responseStatus = response.status;
-    let responseText = await response.text();
+    const responseStatus = response.status;
+    const responseText = await response.text();
 
     console.log(
-      `Approach 1 result - Status: ${responseStatus}, Response: ${responseText}`
+      `Proxy response - Status: ${responseStatus}, Response: ${responseText}`
     );
-
-    // If approach 1 fails, try approach 2
-    if (responseStatus !== 200 || responseText.includes('Forbidden')) {
-      console.log('Approach 1 failed, trying approach 2...');
-      response = await fetch(sendyUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: data2,
-      });
-
-      responseStatus = response.status;
-      responseText = await response.text();
-
-      console.log(
-        `Approach 2 result - Status: ${responseStatus}, Response: ${responseText}`
-      );
-    }
 
     // Process the response
     if (responseText === '1' || responseText.toLowerCase() === 'true') {
@@ -117,16 +87,6 @@ export async function POST({ request }) {
           success: false,
           error: 'invalid_email',
           message: 'Ongeldige email',
-        }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
-      );
-    } else if (responseText.includes('Forbidden') || responseStatus !== 200) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'http_error',
-          message: `HTTP error: ${responseStatus}`,
-          details: responseText,
         }),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
