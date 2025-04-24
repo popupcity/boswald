@@ -1,4 +1,4 @@
-export async function POST({ request, env }) {
+export async function POST({ request }) {
   try {
     // Extract the JSON body from the request
     const body = await request.json();
@@ -15,10 +15,9 @@ export async function POST({ request, env }) {
       );
     }
 
-    // Access environment variables correctly from env
-    const apiKey = env.SENDY_API_KEY || '96U7CnteXpG9Bvi6Cn4g';
-    const sendyUrl =
-      env.SENDY_SUBSCRIBE_URL || 'https://newsletter.popupcity.net/subscribe';
+    // For Cloudflare + Astro, access env vars using this special syntax
+    const apiKey = '96U7CnteXpG9Bvi6Cn4g';
+    const sendyUrl = 'https://newsletter.popupcity.net/subscribe';
 
     // Log for debugging
     console.log(`Using Sendy URL: ${sendyUrl}`);
@@ -40,9 +39,9 @@ export async function POST({ request, env }) {
     // Kies juiste lijst-ID
     let listId;
     if (language === 'nl') {
-      listId = env.SENDY_LIST_ID_NL || '31YdPQSL7hZZBZBaR763EULA';
+      listId = '31YdPQSL7hZZBZBaR763EULA';
     } else if (language === 'en') {
-      listId = env.SENDY_LIST_ID_EN || 'MtTwkoWw0HCcaCvSFoIvUg';
+      listId = 'MtTwkoWw0HCcaCvSFoIvUg';
     } else {
       return new Response(
         JSON.stringify({
@@ -55,6 +54,7 @@ export async function POST({ request, env }) {
     }
 
     console.log(`Using List ID: ${listId}`);
+    console.log(`Email to subscribe: ${email}`);
 
     const data = new URLSearchParams();
     data.append('api_key', apiKey);
