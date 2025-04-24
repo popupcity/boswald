@@ -1,4 +1,4 @@
-export async function POST({ request }) {
+export async function POST({ request, env }) {
   try {
     // Extract the JSON body from the request
     const body = await request.json();
@@ -15,15 +15,14 @@ export async function POST({ request }) {
       );
     }
 
-    // In Cloudflare Workers moeten we env variabelen soms anders benaderen
-    const apiKey =
-      import.meta.env.SENDY_API_KEY ||
-      process.env.SENDY_API_KEY ||
-      '96U7CnteXpG9Bvi6Cn4g';
+    // Access environment variables correctly from env
+    const apiKey = env.SENDY_API_KEY || '96U7CnteXpG9Bvi6Cn4g';
     const sendyUrl =
-      import.meta.env.SENDY_SUBSCRIBE_URL ||
-      process.env.SENDY_SUBSCRIBE_URL ||
-      'https://newsletter.popupcity.net/subscribe';
+      env.SENDY_SUBSCRIBE_URL || 'https://newsletter.popupcity.net/subscribe';
+
+    // Log for debugging
+    console.log(`Using Sendy URL: ${sendyUrl}`);
+    console.log(`Using API Key: ${apiKey?.substring(0, 5)}...`);
 
     // Voeg een controle toe om ervoor te zorgen dat de URL niet undefined is
     if (!sendyUrl) {
@@ -41,15 +40,9 @@ export async function POST({ request }) {
     // Kies juiste lijst-ID
     let listId;
     if (language === 'nl') {
-      listId =
-        import.meta.env.SENDY_LIST_ID_NL ||
-        process.env.SENDY_LIST_ID_NL ||
-        '31YdPQSL7hZZBZBaR763EULA';
+      listId = env.SENDY_LIST_ID_NL || '31YdPQSL7hZZBZBaR763EULA';
     } else if (language === 'en') {
-      listId =
-        import.meta.env.SENDY_LIST_ID_EN ||
-        process.env.SENDY_LIST_ID_EN ||
-        'MtTwkoWw0HCcaCvSFoIvUg';
+      listId = env.SENDY_LIST_ID_EN || 'MtTwkoWw0HCcaCvSFoIvUg';
     } else {
       return new Response(
         JSON.stringify({
@@ -61,11 +54,15 @@ export async function POST({ request }) {
       );
     }
 
+    console.log(`Using List ID: ${listId}`);
+
     const data = new URLSearchParams();
     data.append('api_key', apiKey);
     data.append('list', listId);
     data.append('email', email);
     data.append('boolean', 'true');
+
+    console.log('Sending request to Sendy with data:', data.toString());
 
     const response = await fetch(sendyUrl, {
       method: 'POST',
@@ -78,10 +75,8 @@ export async function POST({ request }) {
     const responseText = await response.text();
     console.log('Sendy API response:', responseText);
 
-    if (
-      responseText.includes('1') ||
-      responseText.toLowerCase().includes('true')
-    ) {
+    // More strict response parsing
+    if (responseText === '1' || responseText.toLowerCase() === 'true') {
       return new Response(
         JSON.stringify({ success: true, message: 'Succesvol ingeschreven.' }),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
@@ -105,6 +100,7 @@ export async function POST({ request }) {
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
     } else {
+      console.error('Unexpected Sendy response:', responseText);
       return new Response(
         JSON.stringify({
           success: false,
