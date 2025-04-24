@@ -64,43 +64,41 @@ const t = getTranslations(currentLocale);
                     return;
                 }
 
-                // Use the local proxy API endpoint instead of directly to Sendy
                 try {
-  const email = emailInput.value.trim();
-  const language = languageSelect.value;
-  
-  // Direct Sendy API aanroepen
-  const sendyUrl = "https://newsletter.popupcity.net/subscribe";
-  const apiKey = "96U7CnteXpG9Bvi6Cn4g";
-  const listId = language === 'nl' ? "31YdPQSL7hZZBZBaR763EULA" : "MtTwkoWw0HCcaCvSFoIvUg";
-  
-  const formData = new FormData();
-  formData.append('api_key', apiKey);
-  formData.append('list', listId);
-  formData.append('email', email);
-  formData.append('boolean', 'true');
-  
-  const response = await fetch(sendyUrl, {
-    method: 'POST',
-    body: formData
-  });
-  
-  const responseText = await response.text();
-  console.log("Direct Sendy response:", responseText);
-  
-  if (responseText === '1' || responseText.toLowerCase().trim() === 'true') {
-    window.ModalFunctions.showModal('feedback-modal', t.success, true);
-    form.reset();
-  } else if (responseText.includes('Already subscribed')) {
-    window.ModalFunctions.showModal('feedback-modal', t.alreadySubscribed, false);
-  } else {
-    window.ModalFunctions.showModal('feedback-modal', t.errorMessage, false);
-    console.error('Error:', responseText);
-  }
-} catch (error) {
-  console.error('API call error details:', error);
-  window.ModalFunctions.showModal('feedback-modal', t.connectionError, false);
-} finally {
+                    const language = languageSelect.value;
+                    
+                    // Gebruik de nieuwe API endpoint in plaats van direct Sendy aan te roepen
+                    const response = await fetch('/api/subscribe', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email, language })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        window.ModalFunctions.showModal('feedback-modal', t.success, true);
+                        form.reset();
+                    } else {
+                        // Afhandeling van specifieke foutcodes
+                        switch(result.error) {
+                            case 'already_subscribed':
+                                window.ModalFunctions.showModal('feedback-modal', t.alreadySubscribed, false);
+                                break;
+                            case 'invalid_email':
+                                window.ModalFunctions.showModal('feedback-modal', t.validationError, false);
+                                break;
+                            default:
+                                window.ModalFunctions.showModal('feedback-modal', t.errorMessage, false);
+                                console.error('API error:', result.message);
+                        }
+                    }
+                } catch (error) {
+                    console.error('API call error:', error);
+                    window.ModalFunctions.showModal('feedback-modal', t.connectionError, false);
+                } finally {
                     // Restore button
                     submitButton.disabled = false;
                     submitButton.innerHTML = t.submitButton;
