@@ -66,6 +66,8 @@ const t = getTranslations(currentLocale);
 
                 // Use the local proxy API endpoint instead of directly to Sendy
                 try {
+                    console.log('Attempting to call API with:', { email, language: languageSelect.value });
+
                     const response = await fetch(`${window.location.origin}/api/newsletter-subscribe`, {
                         method: 'POST',
                         headers: {
@@ -74,7 +76,9 @@ const t = getTranslations(currentLocale);
                         body: JSON.stringify({ email, language: languageSelect.value }),
                     });
 
-                    console.log(response);
+                    console.log('API response status:', response.status);
+                    const responseText = await response.text();
+                    console.log('API raw response:', responseText);
 
                     if (!response.ok) {
                         throw new Error('Server responded with status ' + response.status);
