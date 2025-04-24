@@ -67,38 +67,33 @@ const t = getTranslations(currentLocale);
                 // Use the local proxy API endpoint instead of directly to Sendy
                 try {
                     console.log('Attempting to call API with:', { email, language: languageSelect.value });
-
-                    const response = await fetch(`${window.location.origin}/api/newsletter-subscribe`, {
+                    const response = await fetch('/api/newsletter-subscribe', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({ email, language: languageSelect.value }),
                     });
-
+                    
                     console.log('API response status:', response.status);
-                    const responseText = await response.text();
-                    console.log('API raw response:', responseText);
-
-                    if (!response.ok) {
-                        throw new Error('Server responded with status ' + response.status);
-                    }
-
+                    
+                    // Gebruik ALLEEN response.json(), niet eerst .text() en dan .json()
                     const result = await response.json();
+                    console.log('API response data:', result);
 
                     if (result.success) {
                         window.ModalFunctions.showModal('feedback-modal', t.success, true);
                         form.reset();
-                    } else if (result.error === 'Already subscribed.') {
+                    } else if (result.error === 'already_subscribed') {
                         window.ModalFunctions.showModal('feedback-modal', t.alreadySubscribed, false);
-                    } else if (result.error === 'Invalid email address.') {
+                    } else if (result.error === 'invalid_email') {
                         window.ModalFunctions.showModal('feedback-modal', t.invalidEmail, false);
                     } else {
                         window.ModalFunctions.showModal('feedback-modal', t.errorMessage, false);
                         console.error('Error:', result.message);
                     }
                 } catch (error) {
-                    console.error('API call error:', error);
+                    console.error('API call error details:', error);
                     window.ModalFunctions.showModal('feedback-modal', t.connectionError, false);
                 } finally {
                     // Restore button
