@@ -16,9 +16,8 @@ export async function POST({ request }) {
     }
 
     // In Cloudflare Workers moeten we env variabelen soms anders benaderen
-    const apiKey = import.meta.env.SENDY_API_KEY || process.env.SENDY_API_KEY;
-    const sendyUrl =
-      import.meta.env.SENDY_SUBSCRIBE_URL || process.env.SENDY_SUBSCRIBE_URL;
+    const apiKey = import.meta.env.SENDY_API_KEY;
+    const sendyUrl = import.meta.env.SENDY_SUBSCRIBE_URL;
 
     // Voeg een controle toe om ervoor te zorgen dat de URL niet undefined is
     if (!sendyUrl) {
@@ -36,9 +35,9 @@ export async function POST({ request }) {
     // Kies juiste lijst-ID
     let listId;
     if (language === 'nl') {
-      listId = import.meta.env.SENDY_LIST_ID_NL || process.env.SENDY_LIST_ID_NL;
+      listId = import.meta.env.SENDY_LIST_ID_NL;
     } else if (language === 'en') {
-      listId = import.meta.env.SENDY_LIST_ID_EN || process.env.SENDY_LIST_ID_EN;
+      listId = import.meta.env.SENDY_LIST_ID_EN;
     } else {
       return new Response(
         JSON.stringify({
