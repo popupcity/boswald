@@ -66,36 +66,41 @@ const t = getTranslations(currentLocale);
 
                 // Use the local proxy API endpoint instead of directly to Sendy
                 try {
-                    console.log('Attempting to call API with:', { email, language: languageSelect.value });
-                    const response = await fetch('/api/newsletter-subscribe', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ email, language: languageSelect.value }),
-                    });
-                    
-                    console.log('API response status:', response.status);
-                    
-                    // Gebruik ALLEEN response.json(), niet eerst .text() en dan .json()
-                    const result = await response.json();
-                    console.log('API response data:', result);
-
-                    if (result.success) {
-                        window.ModalFunctions.showModal('feedback-modal', t.success, true);
-                        form.reset();
-                    } else if (result.error === 'already_subscribed') {
-                        window.ModalFunctions.showModal('feedback-modal', t.alreadySubscribed, false);
-                    } else if (result.error === 'invalid_email') {
-                        window.ModalFunctions.showModal('feedback-modal', t.invalidEmail, false);
-                    } else {
-                        window.ModalFunctions.showModal('feedback-modal', t.errorMessage, false);
-                        console.error('Error:', result.message);
-                    }
-                } catch (error) {
-                    console.error('API call error details:', error);
-                    window.ModalFunctions.showModal('feedback-modal', t.connectionError, false);
-                } finally {
+  const email = emailInput.value.trim();
+  const language = languageSelect.value;
+  
+  // Direct Sendy API aanroepen
+  const sendyUrl = "https://newsletter.popupcity.net/subscribe";
+  const apiKey = "96U7CnteXpG9Bvi6Cn4g";
+  const listId = language === 'nl' ? "31YdPQSL7hZZBZBaR763EULA" : "MtTwkoWw0HCcaCvSFoIvUg";
+  
+  const formData = new FormData();
+  formData.append('api_key', apiKey);
+  formData.append('list', listId);
+  formData.append('email', email);
+  formData.append('boolean', 'true');
+  
+  const response = await fetch(sendyUrl, {
+    method: 'POST',
+    body: formData
+  });
+  
+  const responseText = await response.text();
+  console.log("Direct Sendy response:", responseText);
+  
+  if (responseText === '1' || responseText.toLowerCase().trim() === 'true') {
+    window.ModalFunctions.showModal('feedback-modal', t.success, true);
+    form.reset();
+  } else if (responseText.includes('Already subscribed')) {
+    window.ModalFunctions.showModal('feedback-modal', t.alreadySubscribed, false);
+  } else {
+    window.ModalFunctions.showModal('feedback-modal', t.errorMessage, false);
+    console.error('Error:', responseText);
+  }
+} catch (error) {
+  console.error('API call error details:', error);
+  window.ModalFunctions.showModal('feedback-modal', t.connectionError, false);
+} finally {
                     // Restore button
                     submitButton.disabled = false;
                     submitButton.innerHTML = t.submitButton;
