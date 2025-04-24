@@ -1,11 +1,8 @@
 export async function POST({ request }) {
   try {
+    // Extract the JSON body from the request
     const body = await request.json();
     const { email, language } = body;
-
-    console.log(
-      `Processing request for email: ${email}, language: ${language}`
-    );
 
     if (!email || !language) {
       return new Response(
@@ -18,20 +15,41 @@ export async function POST({ request }) {
       );
     }
 
-    // Hard-coded values
-    const apiKey = '96U7CnteXpG9Bvi6Cn4g';
-    const originalSendyUrl = 'https://newsletter.popupcity.net/subscribe';
-    // Use a CORS proxy
-    const sendyUrl = `https://corsproxy.io/?${encodeURIComponent(
-      originalSendyUrl
-    )}`;
+    // In Cloudflare Workers moeten we env variabelen soms anders benaderen
+    const apiKey =
+      import.meta.env.SENDY_API_KEY ||
+      process.env.SENDY_API_KEY ||
+      '96U7CnteXpG9Bvi6Cn4g';
+    const sendyUrl =
+      import.meta.env.SENDY_SUBSCRIBE_URL ||
+      process.env.SENDY_SUBSCRIBE_URL ||
+      'https://newsletter.popupcity.net/subscribe';
 
-    // Choose appropriate list ID
+    // Voeg een controle toe om ervoor te zorgen dat de URL niet undefined is
+    if (!sendyUrl) {
+      console.error('Sendy URL is undefined!');
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'configuration_error',
+          message: 'Server configuration error',
+        }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Kies juiste lijst-ID
     let listId;
     if (language === 'nl') {
-      listId = '31YdPQSL7hZZBZBaR763EULA';
+      listId =
+        import.meta.env.SENDY_LIST_ID_NL ||
+        process.env.SENDY_LIST_ID_NL ||
+        '31YdPQSL7hZZBZBaR763EULA';
     } else if (language === 'en') {
-      listId = 'MtTwkoWw0HCcaCvSFoIvUg';
+      listId =
+        import.meta.env.SENDY_LIST_ID_EN ||
+        process.env.SENDY_LIST_ID_EN ||
+        'MtTwkoWw0HCcaCvSFoIvUg';
     } else {
       return new Response(
         JSON.stringify({
@@ -49,7 +67,10 @@ export async function POST({ request }) {
     data.append('email', email);
     data.append('boolean', 'true');
 
-    console.log(`Sending request via CORS proxy to Sendy for: ${email}`);
+    console.log('About to send request to Sendy', {
+      url: sendyUrl,
+      data: data.toString(),
+    });
 
     const response = await fetch(sendyUrl, {
       method: 'POST',
@@ -59,15 +80,14 @@ export async function POST({ request }) {
       body: data.toString(),
     });
 
-    const responseStatus = response.status;
+    console.log('Sendy response status:', response.status);
     const responseText = await response.text();
+    console.log('Sendy response body:', responseText);
 
-    console.log(
-      `Proxy response - Status: ${responseStatus}, Response: ${responseText}`
-    );
-
-    // Process the response
-    if (responseText === '1' || responseText.toLowerCase() === 'true') {
+    if (
+      responseText.includes('1') ||
+      responseText.toLowerCase().includes('true')
+    ) {
       return new Response(
         JSON.stringify({ success: true, message: 'Succesvol ingeschreven.' }),
         { status: 200, headers: { 'Content-Type': 'application/json' } }
