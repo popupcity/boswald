@@ -24,7 +24,13 @@ export async function POST({ request }) {
 
     // Voeg een controle toe om ervoor te zorgen dat de URL niet undefined is
     if (!sendyUrl) {
-      console.error('Sendy URL is undefined!');
+      console.log('About to call Sendy API with:', {
+        url: sendyUrl,
+        email,
+        listId,
+        apiKey: apiKey ? 'present (length: ' + apiKey.length + ')' : 'missing',
+      });
+
       return new Response(
         JSON.stringify({
           success: false,
@@ -36,11 +42,18 @@ export async function POST({ request }) {
     }
 
     // Kies juiste lijst-ID
+    // Wijzig dit gedeelte om ervoor te zorgen dat listId nooit undefined is
     let listId;
     if (language === 'nl') {
-      listId = import.meta.env.SENDY_LIST_ID_NL;
+      listId =
+        import.meta.env.SENDY_LIST_ID_NL ||
+        process.env.SENDY_LIST_ID_NL ||
+        '31YdPQSL7hZZBZBaR763EULA';
     } else if (language === 'en') {
-      listId = import.meta.env.SENDY_LIST_ID_EN;
+      listId =
+        import.meta.env.SENDY_LIST_ID_EN ||
+        process.env.SENDY_LIST_ID_EN ||
+        'MtTwkoWw0HCcaCvSFoIvUg';
     } else {
       return new Response(
         JSON.stringify({
@@ -49,6 +62,19 @@ export async function POST({ request }) {
           message: 'Taal niet herkend.',
         }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Voeg een controle toe voor listId
+    if (!listId) {
+      console.error('List ID is undefined!', { language });
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'configuration_error',
+          message: 'Server configuration error with list ID',
+        }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
@@ -66,12 +92,14 @@ export async function POST({ request }) {
       body: data.toString(),
     });
 
+    console.log('Sendy API call completed with status:', response.status);
     const responseText = await response.text();
-    console.log('Sendy API response:', responseText);
+    console.log('Sendy API full response:', responseText);
 
     if (
-      responseText.includes('1') ||
-      responseText.toLowerCase().includes('true')
+      responseText === '1' ||
+      responseText === 'true' ||
+      responseText.toLowerCase().trim() === 'true'
     ) {
       return new Response(
         JSON.stringify({ success: true, message: 'Succesvol ingeschreven.' }),
