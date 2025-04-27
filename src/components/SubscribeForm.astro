@@ -34,71 +34,59 @@ const t = getTranslations(currentLocale);
 
 <Modal id="feedback-modal" />
 
-<script define:vars={{t: t.subscribeForm}}>
+<script define:vars={{ t: t.subscribeForm }}>
     document.addEventListener('DOMContentLoaded', () => {
-        const form = document.getElementById('subscribe-form');
-        const submitButton = document.getElementById('submit-button');
-        const emailInput = document.getElementById('email');
-        const languageSelect = document.getElementById('language');
-
-        function validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
+      const form = document.getElementById('subscribe-form');
+      if (!form) return;
+  
+      const submitButton = document.getElementById('submit-button');
+      const emailInput = document.getElementById('email');
+      const languageSelect = document.getElementById('language');
+  
+      const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        submitButton.disabled = true;
+        submitButton.innerHTML = t.loadingText;
+  
+        const email = emailInput.value.trim();
+  
+        if (!email || !validateEmail(email)) {
+          window.ModalFunctions.showModal('feedback-modal', t.validationError, false);
+          resetButton();
+          return;
         }
-
-        if (form) {
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-
-                // Show loading state
-                submitButton.disabled = true;
-                submitButton.innerHTML = t.loadingText;
-
-                const email = emailInput.value.trim();
-                if (!email || !validateEmail(email)) {
-                    window.ModalFunctions.showModal('feedback-modal', t.validationError, false);
-                    submitButton.disabled = false;
-                    submitButton.innerHTML = t.submitButton;
-                    return;
-                }
-
-                // Use the local proxy API endpoint instead of directly to Sendy
-                try {
-                    console.log('Attempting to call API with:', { email, language: languageSelect.value });
-                    const response = await fetch(`${window.origin}/api/newsletter-subscribe`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ email, language: languageSelect.value }),
-                    });
-                    
-                    console.log('API response status:', response.status);
-                    
-                    // Gebruik ALLEEN response.json(), niet eerst .text() en dan .json()
-                    const result = await response.json();
-                    console.log('API response data:', result);
-
-                    if (result.success) {
-                        window.ModalFunctions.showModal('feedback-modal', t.success, true);
-                        form.reset();
-                    } else if (result.error === 'already_subscribed') {
-                        window.ModalFunctions.showModal('feedback-modal', t.alreadySubscribed, false);
-                    } else if (result.error === 'invalid_email') {
-                        window.ModalFunctions.showModal('feedback-modal', t.invalidEmail, false);
-                    } else {
-                        window.ModalFunctions.showModal('feedback-modal', t.errorMessage, false);
-                        console.error('Error:', result.message);
-                    }
-                } catch (error) {
-                    console.error('API call error details:', error);
-                    window.ModalFunctions.showModal('feedback-modal', t.connectionError, false);
-                } finally {
-                    // Restore button
-                    submitButton.disabled = false;
-                    submitButton.innerHTML = t.submitButton;
-                }
-            });
+  
+        try {
+          const res = await fetch(`${window.origin}/api/newsletter-subscribe`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, language: languageSelect.value }),
+          });
+          const result = await res.json();
+  
+          if (result.success) {
+            window.ModalFunctions.showModal('feedback-modal', t.success, true);
+            form.reset();
+          } else {
+            const errorMessages = {
+              already_subscribed: t.alreadySubscribed,
+              invalid_email: t.invalidEmail,
+            };
+            window.ModalFunctions.showModal('feedback-modal', errorMessages[result.error] || t.errorMessage, false);
+          }
+        } catch {
+          window.ModalFunctions.showModal('feedback-modal', t.connectionError, false);
+        } finally {
+          resetButton();
         }
+      });
+  
+      function resetButton() {
+        submitButton.disabled = false;
+        submitButton.innerHTML = t.submitButton;
+      }
     });
-</script>
+  </script>
+  
