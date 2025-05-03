@@ -29,7 +29,7 @@ const t = getTranslations(currentLocale);
             <option value="nl" selected={currentLocale === 'nl'}>🇳🇱</option>
         </select>
     </div>
-    <Button type="submit" id="submit-button" content={t.subscribeForm.submitButton} />
+    <Button type="submit" id="submit-btn">{t.subscribeForm.submitButton}</Button>
 </form>
 
 <Modal id="feedback-modal" />
@@ -39,7 +39,7 @@ const t = getTranslations(currentLocale);
       const form = document.getElementById('subscribe-form');
       if (!form) return;
   
-      const submitButton = document.getElementById('submit-button');
+      const submitButton = document.getElementById('submit-btn');
       const emailInput = document.getElementById('email');
       const languageSelect = document.getElementById('language');
   

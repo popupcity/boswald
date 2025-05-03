@@ -1,10 +1,9 @@
 ---
-const { id, type, content } = Astro.props;
+const { ...rest } = Astro.props;
 ---
 
 <button 
-    {...(type ? { type } : {})}
-    {...(id ? { id } : {})}
+    {...rest}
     class="btn">
-    {content}
+    <slot />
 </button>

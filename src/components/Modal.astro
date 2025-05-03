@@ -8,7 +8,7 @@ const { id } = Astro.props;
     <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-transform duration-300 scale-95">
         <p id="modal-message" class="text-center py-4 text-black text-base md:text-xl font-text"></p>
         <div class="flex justify-center mt-4">
-            <Button content="OK" id={`${id}-ok-button`} />
+            <Button id={`${id}-ok-btn`}>OK</Button>
         </div>
     </div>
 </div>
@@ -78,7 +78,7 @@ const { id } = Astro.props;
             if (!modal) return;
             
             // Gebruik de juiste id voor de OK-knop gebaseerd op de modal id
-            const okButtonId = `${modalId}-ok-button`;
+            const okButtonId = `${modalId}-ok-btn`;
             const modalOkButton = document.getElementById(okButtonId);
             
             // Close modal when OK button is clicked
@@ -104,7 +104,7 @@ const { id } = Astro.props;
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('[id]').forEach((element) => {
             const id = element.id;
-            if (id && id.includes('modal') && !id.includes('-ok-button')) {
+            if (id && id.includes('modal') && !id.includes('-ok-btn')) {
                 ModalFunctions.setupModal(id);
             }
         });

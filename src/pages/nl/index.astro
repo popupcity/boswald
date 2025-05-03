@@ -2,15 +2,16 @@
 import Layout from '../../layouts/Layout.astro';
 import SubscribeForm from '../../components/SubscribeForm.astro';
 import InstagramButton from '../../components/InstagramButton.astro';
+import { Calendar } from '../../components/Calendar.jsx';
 
 // Haal de preferred locale uit de Accept-Language header
 const preferredLocale = Astro.preferredLocale;
 const currentLocale = Astro.currentLocale;
 
 // Redirect naar de gedetecteerde taal als die verschilt van de huidige
-if (preferredLocale && currentLocale !== preferredLocale) {
-  return Astro.redirect(`/${preferredLocale}/`);
-}
+// if (preferredLocale && currentLocale !== preferredLocale) {
+//   return Astro.redirect(`/${preferredLocale}/`);
+// }
 ---
 
 <Layout language="nl" title="Welkom in Boswald" description="Aan de rand van Nationaal Park De Hoge Kempen, midden in de Belgische bossen en op fietsafstand van Maastricht, staat een stijlvol boshuisje waar je binnenkort kunt overnachten.">
@@ -21,5 +22,7 @@ if (preferredLocale && currentLocale !== preferredLocale) {
     </section>
     <SubscribeForm />
   </div>
+
+  <Calendar locale={currentLocale} />
   <InstagramButton />
 </Layout>
