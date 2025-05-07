@@ -49,3 +49,7 @@
 .rdp-disabled {
   @apply line-through;
 }
+
+.rdp-min-days {
+  @apply no-underline;
+}

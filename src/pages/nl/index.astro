@@ -23,6 +23,6 @@ const currentLocale = Astro.currentLocale;
     <SubscribeForm />
   </div>
 
-  <Calendar locale={currentLocale} />
+  <Calendar client:load locale={currentLocale} />
   <InstagramButton />
 </Layout>
