@@ -2,16 +2,6 @@
 
 @import 'tailwindcss';
 
-@font-face {
-  font-family: 'Comico Regular';
-  src: url('../../public/fonts/Comico-Regular.woff2') format('woff2'),
-    url('../../public/fonts/Comico-Regular.woff') format('woff'),
-    url('../../public/fonts/Comico-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-display: swap;
-  font-style: normal;
-}
-
 @theme {
   --color-black: #2b2b2b;
   --color-green: #7fbf8c;
@@ -20,7 +10,6 @@
   --color-rose: #c97b7b;
   --color-cream: #f5f3ec;
 
-  --font-title: 'Comico Regular', sans-serif;
   --font-text: 'Besley', serif;
 }
 

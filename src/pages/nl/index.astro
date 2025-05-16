@@ -2,6 +2,8 @@
 import Layout from '../../layouts/Layout.astro';
 import SubscribeForm from '../../components/SubscribeForm.astro';
 import InstagramButton from '../../components/InstagramButton.astro';
+import { Picture } from 'astro:assets';
+import Logo from '../../assets/logo.png';
 
 // Haal de preferred locale uit de Accept-Language header
 const preferredLocale = Astro.preferredLocale;
@@ -16,7 +18,7 @@ if (preferredLocale && currentLocale !== preferredLocale) {
 <Layout language="nl" title="Welkom in Boswald" description="Aan de rand van Nationaal Park De Hoge Kempen, midden in de Belgische bossen en op fietsafstand van Maastricht, staat een stijlvol boshuisje waar je binnenkort kunt overnachten.">
   <div class="flex flex-col items-center justify-center flex-grow w-full">
     <section class="max-w-3xl text-center mb-12">
-      <h1 class="mb-8 font-title text-6xl md:text-8xl">Boswald</h1>
+      <Picture src={Logo} class="w-2xs md:w-md mx-auto mb-8" title="Boswald" alt="Boswald" />
       <p class="font-text text-base md:text-xl leading-snug">Aan de rand van Nationaal Park De Hoge Kempen, midden in de Belgische bossen en op fietsafstand van Maastricht, bouwt <a href="https://popupcity.net/" target="_blank" class="italic">Pop-Up City</a> aan een stijlvol boshuisje waar je binnenkort kunt overnachten. Als eerste weten wanneer we open gaan? Laat je e-mailadres achter en ontvang een 15% kortingscode bij de lancering.</p>
     </section>
     <SubscribeForm />
