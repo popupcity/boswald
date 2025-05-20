@@ -1,17 +1,21 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import SubscribeForm from '../../components/SubscribeForm.astro';
-import InstagramButton from '../../components/InstagramButton.astro';
+import Layout from '@layouts/Layout.astro';
+import SubscribeForm from '@components/SubscribeForm.astro';
+import InstagramButton from '@components/InstagramButton.astro';
 import { Picture } from 'astro:assets';
-import Logo from '../../assets/logo.png';
+import Logo from '@assets/logo.png';
 
-// Haal de preferred locale uit de Accept-Language header
+// Language redirect
 const preferredLocale = Astro.preferredLocale;
 const currentLocale = Astro.currentLocale;
+let targetLocale = '/en/';
 
-// Redirect naar de gedetecteerde taal als die verschilt van de huidige
-if (preferredLocale && currentLocale !== preferredLocale) {
-  return Astro.redirect(`/${preferredLocale}/`);
+if (preferredLocale === 'nl') {
+  targetLocale = '/';
+}
+
+if (currentLocale !== targetLocale.replace(/\//g, '').replace(/^$/, 'nl')) {
+  return Astro.redirect(targetLocale);
 }
 ---
 

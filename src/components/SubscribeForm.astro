@@ -1,7 +1,7 @@
 ---
-import Button from '../components/Button.astro';
-import Modal from '../components/Modal.astro';
-import { getTranslations} from '../translations/index.ts';
+import Button from '@components/Button.astro';
+import Modal from '@components/Modal.astro';
+import { getTranslations} from '@translations/index.ts';
 
 // Haal huidige taal op van Astro
 const currentLocale = Astro.currentLocale || 'en';
@@ -59,7 +59,7 @@ const t = getTranslations(currentLocale);
         }
   
         try {
-          const res = await fetch(`${window.origin}/api/newsletter-subscribe`, {
+          const res = await fetch(`/api/newsletter-subscribe`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, language: languageSelect.value }),

@@ -1,6 +1,20 @@
 ---
-import "../styles/global.css";
+import "@styles/global.css";
 const {title, language, description} = Astro.props;
+
+// Haal de preferred locale uit de Accept-Language header
+const preferredLocale = Astro.preferredLocale;
+const currentLocale = Astro.currentLocale;
+
+let targetLocale = '/en/';
+
+if (preferredLocale === 'nl') {
+  targetLocale = '/';
+}
+
+if (currentLocale !== targetLocale.replace(/\//g, '').replace(/^$/, 'nl')) {
+  return Astro.redirect(targetLocale);
+}
 ---
 
 <!doctype html>
@@ -17,6 +31,8 @@ const {title, language, description} = Astro.props;
 		<link rel="apple-touch-icon" href="/img/apple-touch-icon.png" sizes="180x180" />
 		<meta name="apple-mobile-web-app-title" content="Boswald" />
 		<link rel="manifest" href="/site.webmanifest" />
+		<link rel="alternate" hreflang="nl" href="/" />
+		<link rel="alternate" hreflang="en" href="/en/" />
 	</head>
 	<body class="w-full h-full m-0 bg-white">
 		<main class="flex flex-col items-center justify-between w-full h-full p-4 min-h-screen">
