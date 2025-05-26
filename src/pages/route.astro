@@ -1,0 +1,6 @@
+---
+const destination = encodeURIComponent('Recreatiepark De Krieckaert');
+const mapUrl = `https://www.google.com/maps/dir/?api=1&destination=${destination}`;
+
+return Astro.redirect(mapUrl, 301);
+---

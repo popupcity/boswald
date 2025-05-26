@@ -12,7 +12,3 @@
 
   --font-text: 'Besley', serif;
 }
-
-.btn {
-  @apply bg-green text-white px-4 py-2 rounded-md shadow-md hover:bg-black transition-all focus:outline-none focus:ring-2 focus:ring-green cursor-pointer w-full font-text text-base md:text-xl italic;
-}
