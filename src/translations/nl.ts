@@ -10,4 +10,11 @@ export default {
     connectionError: 'Verbindingsfout. Probeer het later opnieuw.',
     validationError: 'Vul een geldig e-mailadres in.',
   },
+  amenityFeatures: {
+    surroundings: 'Gelegen in een bosrijke omgeving',
+    forestGarden: 'Privé bostuin',
+    designHouse: 'Designhuisje',
+    nearMaastricht: 'Op 15 minuten van Maastricht',
+    freeWifi: 'Gratis wifi',
+  },
 };

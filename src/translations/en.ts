@@ -10,4 +10,11 @@ export default {
     connectionError: 'Connection error. Please try again later.',
     validationError: 'Fill in a valid email address.',
   },
+  amenityFeatures: {
+    surroundings: 'Located in a wooded area',
+    forestGarden: 'Private forest garden',
+    designHouse: 'Designer cottage',
+    nearMaastricht: '15 minutes from Maastricht',
+    freeWifi: 'Free Wi-Fi',
+  },
 };

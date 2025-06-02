@@ -1,6 +1,40 @@
 ---
 import "@/styles/global.css";
 const {title, language, description} = Astro.props;
+import { getTranslations } from '../translations/index.ts';
+const locale = Astro.currentLocale || 'nl';
+const t = getTranslations(locale);
+const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "VacationRental",
+  "name": "Boswald",
+  "image": "https://boswald.nl/img/thumbnail.jpg",
+  "url": canonical,
+  "description": description,
+  "inLanguage": locale === 'en' ? 'en' : 'nl',
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Krieckaertlaan 1-77",
+    "postalCode": "3620",
+    "addressLocality": "Lanaken",
+    "addressCountry": "BE"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 50.891942,
+    "longitude": 5.596644
+  },
+  "priceRange": "€",
+  "amenityFeature": [
+    { "@type": "LocationFeatureSpecification", "name": t.amenityFeatures.freeWifi, "value": true },
+    { "@type": "LocationFeatureSpecification", "name": t.amenityFeatures.surroundings, "value": true },
+    { "@type": "LocationFeatureSpecification", "name": t.amenityFeatures.forestGarden, "value": true },
+    { "@type": "LocationFeatureSpecification", "name": t.amenityFeatures.designHouse, "value": true },
+    { "@type": "LocationFeatureSpecification", "name": t.amenityFeatures.nearMaastricht, "value": true },
+  ]
+}
 ---
 
 <!doctype html>
@@ -11,6 +45,8 @@ const {title, language, description} = Astro.props;
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 		<meta name="description" content={description} />
+		<meta name="robots" content="index, follow">
+		<link rel="canonical" href={canonical} />
 		<link rel="shortcut icon" href="/img/favicon.ico" />
 		<link rel="icon" type="image/svg+xml" href="/img/favicon.svg" sizes="any" />
 		<link rel="icon" type="image/png" href="/img/favicon-96x96.png" sizes="96x96" />
@@ -19,6 +55,7 @@ const {title, language, description} = Astro.props;
 		<link rel="manifest" href="/site.webmanifest" />
 		<link rel="alternate" hreflang="nl" href="/" />
 		<link rel="alternate" hreflang="en" href="/en/" />
+		<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 	</head>
 	<body class="w-full h-full m-0 bg-white">
 		<main class="flex flex-col items-center justify-between w-full h-full p-4 min-h-screen">
