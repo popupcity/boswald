@@ -13,8 +13,8 @@ export default defineConfig({
       page !== 'https://boswald.nl/en/newsletter/unsubscribed/' &&
       page !== 'https://boswald.nl/nieuwsbrief/aangemeld/' &&
       page !== 'https://boswald.nl/nieuwsbrief/afgemeld/' &&
-      page !== 'https://boswald.nl/nieuwsbrief/handleiding/' &&
-      page !== 'https://boswald.nl/nieuwsbrief/tips/',
+      page !== 'https://boswald.nl/handleiding/' &&
+      page !== 'https://boswald.nl/tips/',
   }),
 
   vite: {
