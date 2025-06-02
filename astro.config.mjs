@@ -9,23 +9,13 @@ export default defineConfig({
   adapter: netlify(),
   integrations: [
     sitemap({
-      filter: (page) => {
-        try {
-          const path = new URL(page).pathname;
-          const excludedPaths = [
-            '/en/newsletter/subscribed/',
-            '/en/newsletter/unsubscribed/',
-            '/nieuwsbrief/aangemeld/',
-            '/nieuwsbrief/afgemeld/',
-            '/handleiding/',
-            '/tips/',
-          ];
-          return !excludedPaths.includes(path);
-        } catch (e) {
-          console.error('Sitemap filter error:', e);
-          return false; // veiligheid: skip bij fout
-        }
-      },
+      filter: (page) =>
+        page !== 'https://boswald.nl/en/newsletter/subscribed/' &&
+        page !== 'https://boswald.nl/en/newsletter/unsubscribed/' &&
+        page !== 'https://boswald.nl/nieuwsbrief/aangemeld/' &&
+        page !== 'https://boswald.nl/nieuwsbrief/afgemeld/' &&
+        page !== 'https://boswald.nl/handleiding/' &&
+        page !== 'https://boswald.nl/tips/',
       i18n: {
         defaultLocale: 'nl',
         locales: {
@@ -34,9 +24,11 @@ export default defineConfig({
       },
     }),
   ],
+
   vite: {
     plugins: [tailwindcss()],
   },
+
   i18n: {
     locales: ['nl', 'en'],
     defaultLocale: 'nl',
