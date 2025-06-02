@@ -1,10 +1,4 @@
 ---
-import Layout from '@/layouts/Layout.astro';
-import SubscribeForm from '@/components/SubscribeForm.astro';
-import InstagramButton from '@/components/InstagramButton.astro';
-import { Picture } from 'astro:assets';
-import Logo from '@/assets/logo.png';
-
 // Language redirect
 const preferredLocale = Astro.preferredLocale;
 const currentLocale = Astro.currentLocale;
@@ -17,6 +11,12 @@ if (preferredLocale === 'nl') {
 if (currentLocale !== targetLocale.replace(/\//g, '').replace(/^$/, 'nl')) {
   return Astro.redirect(targetLocale);
 }
+
+import Layout from '@/layouts/Layout.astro';
+import SubscribeForm from '@/components/SubscribeForm.astro';
+import InstagramButton from '@/components/InstagramButton.astro';
+import { Picture } from 'astro:assets';
+import Logo from '@/assets/logo.png';
 ---
 
 <Layout language="nl" title="Welkom in Boswald" description="Aan de rand van Nationaal Park De Hoge Kempen, midden in de Belgische bossen en op fietsafstand van Maastricht, staat een stijlvol boshuisje waar je binnenkort kunt overnachten.">
