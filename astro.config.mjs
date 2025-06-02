@@ -15,6 +15,12 @@ export default defineConfig({
       page !== 'https://boswald.nl/nieuwsbrief/afgemeld/' &&
       page !== 'https://boswald.nl/handleiding/' &&
       page !== 'https://boswald.nl/tips/',
+    i18n: {
+      defaultLocale: 'nl',
+      locales: {
+        en: 'en-GB',
+      },
+    },
   }),
 
   vite: {
