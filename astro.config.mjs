@@ -7,21 +7,21 @@ export default defineConfig({
   site: 'https://boswald.nl',
   output: 'server',
   adapter: netlify(),
-  integrations: sitemap({
-    filter: (page) =>
-      page !== 'https://boswald.nl/en/newsletter/subscribed/' &&
-      page !== 'https://boswald.nl/en/newsletter/unsubscribed/' &&
-      page !== 'https://boswald.nl/nieuwsbrief/aangemeld/' &&
-      page !== 'https://boswald.nl/nieuwsbrief/afgemeld/' &&
-      page !== 'https://boswald.nl/handleiding/' &&
-      page !== 'https://boswald.nl/tips/',
-    i18n: {
-      defaultLocale: 'nl',
-      locales: {
-        en: 'en-GB',
-      },
-    },
-  }),
+  // integrations: sitemap({
+  //   filter: (page) =>
+  //     page !== 'https://boswald.nl/en/newsletter/subscribed/' &&
+  //     page !== 'https://boswald.nl/en/newsletter/unsubscribed/' &&
+  //     page !== 'https://boswald.nl/nieuwsbrief/aangemeld/' &&
+  //     page !== 'https://boswald.nl/nieuwsbrief/afgemeld/' &&
+  //     page !== 'https://boswald.nl/handleiding/' &&
+  //     page !== 'https://boswald.nl/tips/',
+  //   i18n: {
+  //     defaultLocale: 'nl',
+  //     locales: {
+  //       en: 'en-GB',
+  //     },
+  //   },
+  // }),
 
   vite: {
     plugins: [tailwindcss()],
