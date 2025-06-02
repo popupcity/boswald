@@ -5,9 +5,17 @@ import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   site: 'https://boswald.nl',
-  integrations: [sitemap()],
   output: 'server',
   adapter: netlify(),
+  integrations: sitemap({
+    filter: (page) =>
+      page !== 'https://boswald.nl/en/newsletter/subscribed/' &&
+      page !== 'https://boswald.nl/en/newsletter/unsubscribed/' &&
+      page !== 'https://boswald.nl/nieuwsbrief/aangemeld/' &&
+      page !== 'https://boswald.nl/nieuwsbrief/afgemeld/' &&
+      page !== 'https://boswald.nl/nieuwsbrief/handleiding/' &&
+      page !== 'https://boswald.nl/nieuwsbrief/tips/',
+  }),
 
   vite: {
     plugins: [tailwindcss()],
